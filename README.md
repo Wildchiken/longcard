@@ -4,8 +4,13 @@
 
 将文字排版成精美长图，适合微信、小红书等平台分享，也可用于日记、摘抄归档。数据仅存本地，无需账号。
 
-<!-- screenshot -->
-![预览图](./docs/preview.png)
+<p align="center">
+  <img
+    src="https://github.com/user-attachments/assets/fbcaaa81-4f26-410e-ad3b-64646966a439"
+    alt="Longcard 界面预览"
+    width="920"
+  />
+</p>
 
 ## 功能
 
@@ -23,19 +28,20 @@
 ```bash
 npm install
 npm run dev
-# 打开 http://localhost:3000
+# 浏览器打开 http://localhost:3000
 ```
 
+生产构建：
+
 ```bash
-# 构建生产版本
 npm run build
 npm start
 ```
 
 ## 技术栈
 
-| | |
-|---|---|
+| 类别 | 技术 |
+| --- | --- |
 | Framework | Next.js 16 (App Router) |
 | UI | React 19 + Tailwind CSS v4 |
 | State | Zustand |
@@ -49,14 +55,19 @@ npm start
 
 ---
 
-<a name="english"></a>
+<a id="english"></a>
 
 # Longcard
 
 Turn plain text into beautifully typeset long images — great for sharing on WeChat, Xiaohongshu, or archiving personal notes. All data stays local, no account needed.
 
-<!-- screenshot -->
-![Preview](./docs/preview.png)
+<p align="center">
+  <img
+    src="https://github.com/user-attachments/assets/fbcaaa81-4f26-410e-ad3b-64646966a439"
+    alt="Longcard screenshot"
+    width="920"
+  />
+</p>
 
 ## Features
 
@@ -76,6 +87,24 @@ npm install
 npm run dev
 # open http://localhost:3000
 ```
+
+Production build:
+
+```bash
+npm run build
+npm start
+```
+
+## Stack
+
+| Area | Technology |
+| --- | --- |
+| Framework | Next.js 16 (App Router) |
+| UI | React 19 + Tailwind CSS v4 |
+| State | Zustand |
+| Storage | Dexie (IndexedDB) |
+| Image export | html-to-image, jsPDF |
+| Canvas editor | Fabric.js |
 
 ## License
 
