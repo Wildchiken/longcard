@@ -1,13 +1,14 @@
 import type { NextConfig } from 'next'
 
+const staticExport = process.env.STATIC_EXPORT === '1'
+
 const nextConfig: NextConfig = {
-  // Silence turbopack/webpack coexistence warning
+  ...(staticExport ? { output: 'export' as const } : {}),
   turbopack: {},
   devIndicators: false,
   experimental: {
     optimizePackageImports: ['lucide-react', 'framer-motion'],
   },
-  // Fabric.js requires canvas which is a native module — exclude from server bundle
   serverExternalPackages: ['canvas', 'fabric'],
 }
 

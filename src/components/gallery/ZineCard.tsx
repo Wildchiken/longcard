@@ -46,7 +46,7 @@ export function ZineCard({ zine }: ZineCardProps) {
 
   return (
     <div className="group relative">
-      <Link href={`/editor/${zine.id}`} className="block">
+      <Link href={`/editor?id=${encodeURIComponent(zine.id)}`} className="block">
         <div className="relative aspect-square rounded-2xl overflow-hidden bg-gray-100 dark:bg-gray-800 shadow-sm hover:shadow-md transition-shadow">
           {zine.thumbnailDataURL ? (
             // eslint-disable-next-line @next/next/no-img-element
@@ -76,7 +76,7 @@ export function ZineCard({ zine }: ZineCardProps) {
           <MoreHorizontal size={14} />
         </PopoverTrigger>
         <PopoverContent className="w-44 p-1 dark:border-gray-700 dark:bg-gray-950" align="end">
-          <Link href={`/editor/${zine.id}`}>
+          <Link href={`/editor?id=${encodeURIComponent(zine.id)}`}>
             <button className="flex items-center gap-2 w-full px-3 py-2 text-sm rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 text-left dark:text-gray-200">
               <Edit2 size={14} /> 编辑
             </button>

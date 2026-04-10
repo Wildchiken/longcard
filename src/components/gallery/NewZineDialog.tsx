@@ -33,7 +33,7 @@ export function NewZineDialog({ open, onOpenChange }: NewZineDialogProps) {
     const { v4: uuid } = await import('uuid')
     const id = uuid()
     onOpenChange(false)
-    router.push(`/editor/${id}?format=${selected}`)
+    router.push(`/editor?id=${encodeURIComponent(id)}&format=${selected}`)
   }
 
   return (

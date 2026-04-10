@@ -23,11 +23,37 @@ jobs:
       - name: Type check
         run: bunx tsc --noEmit
 
-      - name: Build
+      - name: Static export (for release zip)
+        env:
+          STATIC_EXPORT: '1'
         run: bun run build
+
+      - name: Package static site
+        run: |
+          (cd out && zip -r "../longcard-${{ github.ref_name }}-static.zip" .)
+          cat > STATIC_HOSTING.txt << 'EOF'
+          Longcard static build (from GitHub Releases)
+
+          This is a static site, not a single .exe. Use any local HTTP server:
+
+            cd into the folder you unzipped (you should see index.html and _next/)
+            npx --yes serve .
+            Open the URL shown (usually http://localhost:3000)
+
+          Or with Python 3:
+            python3 -m http.server 8080
+            Open http://localhost:8080
+
+          Do not open index.html directly with file:// — routing and assets will break.
+
+          For development from source, clone the repo and run: bun install && bun run dev
+          EOF
+          zip -u "longcard-${{ github.ref_name }}-static.zip" STATIC_HOSTING.txt
+          rm STATIC_HOSTING.txt
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
           generate_release_notes: true
           make_latest: true
+          files: longcard-${{ github.ref_name }}-static.zip
