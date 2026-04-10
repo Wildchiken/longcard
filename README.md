@@ -38,11 +38,9 @@ npm run build
 npm start
 ```
 
-### GitHub Releases 里的 zip
+### GitHub Releases
 
-Release 附件中的 `longcard-v*-static.zip` 是**静态站点**（`next build` + `output: 'export'`）：解压后在该目录执行 `npx --yes serve .` 或 `python3 -m http.server 8080`，用浏览器打开终端里显示的地址。**不要**用 `file://` 直接双击打开 `index.html`，否则路由和资源会失败。压缩包内附有 `STATIC_HOSTING.txt` 说明。
-
-Longcard 是浏览器里运行的 Web 应用，**没有** Windows `.exe` / macOS `.app` 这类单机可执行文件；若需要桌面壳需自行用 Tauri、Electron 等打包。
+附件 `longcard-v*-static.zip`：解压后在该目录执行 `npx serve .`，其余见 `STATIC_HOSTING.txt`。
 
 ## 技术栈
 
@@ -101,11 +99,9 @@ npm run build
 npm start
 ```
 
-### Release zip (static export)
+### GitHub Releases
 
-The `longcard-v*-static.zip` asset is a **static site** export. After unzipping, run `npx --yes serve .` or `python3 -m http.server 8080` in that folder and open the URL in a browser. **Do not** open `index.html` via `file://`. See `STATIC_HOSTING.txt` inside the zip.
-
-This project is a **web app** (runs in the browser). There is **no** standalone `.exe` / `.app`; use a desktop wrapper (Electron, Tauri, etc.) if you need one.
+`longcard-v*-static.zip`: unzip, then run `npx serve .` in that folder. See `STATIC_HOSTING.txt`.
 
 ## Stack
 
