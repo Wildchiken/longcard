@@ -20,6 +20,7 @@ import {
 import type { Block, PageTheme } from '@/types/page'
 import type { LayoutPreset } from '@/lib/page/layout-presets'
 import { loadAllCustomFonts } from '@/lib/fonts/custom-fonts'
+import { ensureFontsReadyForCapture } from '@/lib/fonts/loader'
 import { loadUISettings, saveUISettings } from '@/lib/settings'
 import { useI18n } from '@/lib/i18n/context'
 import { useToast } from '@/lib/toast-context'
@@ -325,6 +326,7 @@ export function ComposeWorkbench() {
 
   const captureImage = useCallback(async (): Promise<string | null> => {
     if (!previewRef.current) return null
+    await ensureFontsReadyForCapture(theme.fontHeading, theme.fontBody)
     const { toPng } = await import('html-to-image')
     const exportFilter = (node: Node) =>
       !(node instanceof Element && node.hasAttribute('data-export-ignore'))
@@ -333,8 +335,10 @@ export function ComposeWorkbench() {
       pixelRatio: exportScale,
       backgroundColor: theme.background,
       filter: exportFilter,
+      cacheBust: true,
+      preferredFontFormat: 'woff2',
     })
-  }, [theme.background, exportScale])
+  }, [theme.background, theme.fontHeading, theme.fontBody, exportScale])
 
   const downloadBlob = (blob: Blob, filename: string) => {
     const url = URL.createObjectURL(blob)
@@ -357,6 +361,7 @@ export function ComposeWorkbench() {
     if (isEmpty || !previewRef.current) return
     setExporting(true)
     try {
+      await ensureFontsReadyForCapture(theme.fontHeading, theme.fontBody)
       const name = pageTitle || t('export.defaultImageName')
       const docLang =
         typeof document !== 'undefined' && document.documentElement.lang
@@ -366,7 +371,14 @@ export function ComposeWorkbench() {
       const el = previewRef.current
       const exportFilter = (node: Node) =>
         !(node instanceof Element && node.hasAttribute('data-export-ignore'))
-      const opts = { quality: 0.95, pixelRatio: exportScale, backgroundColor: theme.background, filter: exportFilter }
+      const opts = {
+        quality: 0.95,
+        pixelRatio: exportScale,
+        backgroundColor: theme.background,
+        filter: exportFilter,
+        cacheBust: true,
+        preferredFontFormat: 'woff2' as const,
+      }
 
       if (exportFormat === 'png') {
         const dataURL = await toPng(el, opts)
@@ -385,7 +397,12 @@ export function ComposeWorkbench() {
       }
 
       else if (exportFormat === 'svg') {
-        const svgStr = await toSvg(el, { pixelRatio: 1, backgroundColor: theme.background })
+        const svgStr = await toSvg(el, {
+          pixelRatio: 1,
+          backgroundColor: theme.background,
+          cacheBust: true,
+          preferredFontFormat: 'woff2',
+        })
         downloadBlob(new Blob([svgStr], { type: 'image/svg+xml;charset=utf-8' }), `${name}.svg`)
       }
 
@@ -429,7 +446,7 @@ export function ComposeWorkbench() {
     } finally {
       setExporting(false)
     }
-  }, [isEmpty, pageTitle, exportFormat, exportScale, theme.background, theme.fontBody, theme.text, preset.contentWidth, sourceText, t])
+  }, [isEmpty, pageTitle, exportFormat, exportScale, theme.background, theme.fontHeading, theme.fontBody, theme.text, preset.contentWidth, sourceText, t])
 
   const openExport = useCallback(() => {
     if (isEmpty) return

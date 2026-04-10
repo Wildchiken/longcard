@@ -2,6 +2,11 @@ import { CURATED_FONTS } from './registry'
 
 const loadedFonts = new Set<string>()
 
+function cssFontFamilyToken(family: string): string {
+  if (!family.includes(' ') && /^[a-zA-Z0-9-]+$/.test(family)) return family
+  return `"${family.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`
+}
+
 export async function loadFont(family: string): Promise<void> {
   if (loadedFonts.has(family)) return
 
@@ -15,11 +20,21 @@ export async function loadFont(family: string): Promise<void> {
     const link = document.createElement('link')
     link.rel = 'stylesheet'
     link.href = href
+    const linkDone = new Promise<void>((resolve) => {
+      link.onload = () => resolve()
+      link.onerror = () => resolve()
+    })
     document.head.appendChild(link)
+    await linkDone
   }
 
   try {
     await document.fonts.ready
+    const q = cssFontFamilyToken(family)
+    await Promise.all([
+      document.fonts.load(`400 16px ${q}`).catch(() => []),
+      document.fonts.load(`700 32px ${q}`).catch(() => []),
+    ])
     loadedFonts.add(family)
   } catch {
     // non-fatal
@@ -29,6 +44,23 @@ export async function loadFont(family: string): Promise<void> {
 export async function loadMultipleFonts(families: string[]): Promise<void> {
   const unique = [...new Set(families)]
   await Promise.all(unique.map(loadFont))
+}
+
+export async function ensureFontsReadyForCapture(
+  fontHeading: string,
+  fontBody: string,
+): Promise<void> {
+  await loadMultipleFonts([fontHeading, fontBody])
+  await document.fonts.ready
+  const families = [...new Set([fontHeading, fontBody].filter(Boolean))]
+  const weights = ['300 15px', '400 16px', '500 18px', '600 22px', '700 28px', '700 40px', '900 52px']
+  await Promise.all(
+    families.flatMap((fam) => {
+      const q = cssFontFamilyToken(fam)
+      return weights.map((w) => document.fonts.load(`${w} ${q}`).catch(() => []))
+    }),
+  )
+  await document.fonts.ready
 }
 
 export function preloadDefaultFonts(): void {
