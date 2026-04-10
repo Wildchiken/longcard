@@ -1,36 +1,82 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Longcard
 
-## Getting Started
+**中文** | [English](#english)
 
-First, run the development server:
+将文字排版成精美长图，适合微信、小红书等平台分享，也可用于日记、摘抄归档。数据仅存本地，无需账号。
+
+<!-- screenshot -->
+![预览图](./docs/preview.png)
+
+## 功能
+
+- 粘贴文字，实时预览排版效果
+- 多种内置风格（纸白、素雅、暗夜学院、手账笔记……）
+- 支持 Markdown 语法（标题、引用、加粗、分割线等）
+- 导出 PNG / JPEG / WebP / SVG / PDF / HTML / Markdown
+- 历史版本：每次保存自动快照，支持回滚
+- 中 / English 界面切换
+- PWA：可安装到手机主屏幕，离线可用
+- 所有数据存储在浏览器本地，不联网，不收集任何信息
+
+## 快速开始
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# 打开 http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+```bash
+# 构建生产版本
+npm run build
+npm start
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 技术栈
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| | |
+|---|---|
+| Framework | Next.js 16 (App Router) |
+| UI | React 19 + Tailwind CSS v4 |
+| State | Zustand |
+| Storage | Dexie (IndexedDB) |
+| Image export | html-to-image, jsPDF |
+| Canvas editor | Fabric.js |
 
-## Learn More
+## License
 
-To learn more about Next.js, take a look at the following resources:
+[MIT](./LICENSE)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+<a name="english"></a>
 
-## Deploy on Vercel
+# Longcard
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Turn plain text into beautifully typeset long images — great for sharing on WeChat, Xiaohongshu, or archiving personal notes. All data stays local, no account needed.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+<!-- screenshot -->
+![Preview](./docs/preview.png)
+
+## Features
+
+- Paste text, see live layout preview
+- Multiple built-in themes (Paper White, Elegant, Dark Academia, Journal…)
+- Markdown support (headings, blockquotes, bold, dividers…)
+- Export to PNG / JPEG / WebP / SVG / PDF / HTML / Markdown
+- Version history with one-click restore
+- Chinese / English UI toggle
+- PWA: installable, works offline
+- Fully local — no server, no tracking
+
+## Getting started
+
+```bash
+npm install
+npm run dev
+# open http://localhost:3000
+```
+
+## License
+
+[MIT](./LICENSE)

@@ -1,0 +1,33 @@
+{
+  "name": "Longcard — 文字转长图",
+  "short_name": "Longcard",
+  "description": "将文字转化为精美长图，支持多种排版风格，一键导出高清图片",
+  "start_url": "/compose",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#111111",
+  "orientation": "any",
+  "categories": ["productivity", "photo"],
+  "icons": [
+    {
+      "src": "/icons/icon-192.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "新建长图",
+      "url": "/compose",
+      "description": "输入文字，生成精美长图"
+    }
+  ]
+}
