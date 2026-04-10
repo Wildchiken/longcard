@@ -117,34 +117,18 @@ function ScaledPreviewContainer({
   contentWidth: number
   children: React.ReactNode
 }) {
-  const containerRef = useRef<HTMLDivElement>(null)
-  const [zoom, setZoom] = useState(1)
-
-  useEffect(() => {
-    const el = containerRef.current
-    if (!el) return
-    const obs = new ResizeObserver(([entry]) => {
-      const w = entry.contentRect.width
-      const horizontalPad = w < 420 ? 24 : 48
-      const available = Math.max(80, w - horizontalPad)
-      setZoom(Math.min(1, available / contentWidth))
-    })
-    obs.observe(el)
-    return () => obs.disconnect()
-  }, [contentWidth])
-
-  const scaledStyle = Object.assign(
-    { width: contentWidth, flexShrink: 0 },
-    { zoom: String(zoom) }
-  ) as CSSProperties
-
   return (
-    <div ref={containerRef} className="w-full flex justify-center py-6 sm:py-8 md:py-10 px-3 sm:px-6">
+    <div className="w-full overflow-x-auto overscroll-x-contain">
       <div
-        className="rounded-2xl overflow-hidden shadow-xl shadow-black/8 ring-1 ring-black/6 dark:shadow-black/40 dark:ring-white/10"
-        style={scaledStyle}
+        className="flex justify-center py-6 sm:py-8 md:py-10 px-3 sm:px-6 box-border mx-auto"
+        style={{ width: `max(100%, ${contentWidth}px)` }}
       >
-        {children}
+        <div
+          className="rounded-2xl overflow-hidden shadow-xl shadow-black/8 ring-1 ring-black/6 dark:shadow-black/40 dark:ring-white/10 flex-shrink-0"
+          style={{ width: contentWidth }}
+        >
+          {children}
+        </div>
       </div>
     </div>
   )
@@ -174,22 +158,6 @@ function FullscreenPreviewLayer({
   markdownEnabled,
 }: FullscreenPreviewLayerProps) {
   const { t } = useI18n()
-  const containerRef = useRef<HTMLDivElement>(null)
-  const [zoom, setZoom] = useState(1)
-
-  useEffect(() => {
-    if (!open) return
-    const el = containerRef.current
-    if (!el) return
-    const obs = new ResizeObserver(([entry]) => {
-      const w = entry.contentRect.width
-      const horizontalPad = w < 420 ? 20 : 40
-      const available = Math.max(64, w - horizontalPad)
-      setZoom(Math.min(1, available / contentWidth))
-    })
-    obs.observe(el)
-    return () => obs.disconnect()
-  }, [open, contentWidth])
 
   useEffect(() => {
     if (!open) return
@@ -206,11 +174,6 @@ function FullscreenPreviewLayer({
   }, [open, onClose])
 
   if (!open) return null
-
-  const scaledStyle = Object.assign(
-    { width: contentWidth, flexShrink: 0 },
-    { zoom: String(zoom) }
-  ) as CSSProperties
 
   return (
     <div
@@ -233,14 +196,14 @@ function FullscreenPreviewLayer({
           <X size={22} />
         </button>
       </div>
-      <div
-        ref={containerRef}
-        className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden"
-      >
-        <div className="flex justify-center py-6 px-3 sm:px-6 pb-[max(2rem,env(safe-area-inset-bottom))]">
+      <div className="flex-1 min-h-0 overflow-y-auto overflow-x-auto overscroll-x-contain">
+        <div
+          className="flex justify-center py-6 px-3 sm:px-6 pb-[max(2rem,env(safe-area-inset-bottom))] box-border mx-auto"
+          style={{ width: `max(100%, ${contentWidth}px)` }}
+        >
           <div
-            className="rounded-xl overflow-hidden shadow-2xl ring-1 ring-white/15"
-            style={scaledStyle}
+            className="rounded-xl overflow-hidden shadow-2xl ring-1 ring-white/15 flex-shrink-0"
+            style={{ width: contentWidth }}
           >
             <LongImagePreview
               blocks={blocks}
