@@ -21,10 +21,26 @@ import type { Block, PageTheme } from '@/types/page'
 import type { LayoutPreset } from '@/lib/page/layout-presets'
 import { loadAllCustomFonts } from '@/lib/fonts/custom-fonts'
 import { ensureFontsReadyForCapture } from '@/lib/fonts/loader'
+import { buildFontEmbedCssForCapture } from '@/lib/fonts/font-embed-for-capture'
 import { loadUISettings, saveUISettings } from '@/lib/settings'
 import { useI18n } from '@/lib/i18n/context'
 import { useToast } from '@/lib/toast-context'
 import { escapeHtml } from '@/lib/utils'
+import { withTimeout } from '@/lib/with-timeout'
+import {
+  clampCapturePixelRatio,
+  getCaptureNodeCssSize,
+} from '@/lib/export/capture-pixel-ratio'
+
+const CAPTURE_FONT_READY_MS = 28_000
+const CAPTURE_RASTER_MS = 90_000
+const EXPORT_RASTER_MS = 120_000
+
+const CAPTURE_ROOT_STYLE = {
+  webkitFontSmoothing: 'antialiased',
+  MozOsxFontSmoothing: 'grayscale',
+  textRendering: 'geometricPrecision',
+} as unknown as Partial<CSSStyleDeclaration>
 
 type MobileTab = 'write' | 'preview'
 
@@ -232,7 +248,7 @@ export function ComposeWorkbench() {
     effectivePreset, effectiveTheme,
     saveToGallery, isSaving, loadPage,
     watermarkText, setWatermarkText, exportScale, setExportScale, resetPage, sourceText,
-    exportFormat, setCustomFonts,
+    exportFormat, customFonts, setCustomFonts,
     markdownEnabled,
     undo, redo, canUndo, canRedo,
   } = useComposeStore()
@@ -326,19 +342,40 @@ export function ComposeWorkbench() {
 
   const captureImage = useCallback(async (): Promise<string | null> => {
     if (!previewRef.current) return null
-    await ensureFontsReadyForCapture(theme.fontHeading, theme.fontBody)
-    const { toPng } = await import('html-to-image')
-    const exportFilter = (node: Node) =>
-      !(node instanceof Element && node.hasAttribute('data-export-ignore'))
-    return toPng(previewRef.current, {
-      quality: 1,
-      pixelRatio: exportScale,
-      backgroundColor: theme.background,
-      filter: exportFilter,
-      cacheBust: true,
-      preferredFontFormat: 'woff2',
-    })
-  }, [theme.background, theme.fontHeading, theme.fontBody, exportScale])
+    const el = previewRef.current
+    try {
+      await withTimeout(
+        ensureFontsReadyForCapture(theme.fontHeading, theme.fontBody),
+        CAPTURE_FONT_READY_MS,
+      ).catch(() => {})
+      const fontEmbedCSS = await buildFontEmbedCssForCapture(el, customFonts, {
+        fontHeading: theme.fontHeading,
+        fontBody: theme.fontBody,
+      })
+      const fontOpts = { fontEmbedCSS }
+      const { width: cw, height: ch } = getCaptureNodeCssSize(el)
+      const pixelRatio = clampCapturePixelRatio(cw, ch, exportScale)
+      const { toPng } = await import('html-to-image')
+      const exportFilter = (node: Node) =>
+        !(node instanceof Element && node.hasAttribute('data-export-ignore'))
+      return await withTimeout(
+        toPng(el, {
+          quality: 1,
+          pixelRatio,
+          skipAutoScale: true,
+          backgroundColor: theme.background,
+          filter: exportFilter,
+          cacheBust: true,
+          preferredFontFormat: 'woff2',
+          style: CAPTURE_ROOT_STYLE,
+          ...fontOpts,
+        }),
+        CAPTURE_RASTER_MS,
+      )
+    } catch {
+      return null
+    }
+  }, [theme.background, theme.fontHeading, theme.fontBody, exportScale, customFonts])
 
   const downloadBlob = (blob: Blob, filename: string) => {
     const url = URL.createObjectURL(blob)
@@ -361,53 +398,74 @@ export function ComposeWorkbench() {
     if (isEmpty || !previewRef.current) return
     setExporting(true)
     try {
-      await ensureFontsReadyForCapture(theme.fontHeading, theme.fontBody)
+      const el = previewRef.current
+      if (!el) return
+      await withTimeout(
+        ensureFontsReadyForCapture(theme.fontHeading, theme.fontBody),
+        CAPTURE_FONT_READY_MS,
+      ).catch(() => {})
+      const fontEmbedCSS = await buildFontEmbedCssForCapture(el, customFonts, {
+        fontHeading: theme.fontHeading,
+        fontBody: theme.fontBody,
+      })
       const name = pageTitle || t('export.defaultImageName')
       const docLang =
         typeof document !== 'undefined' && document.documentElement.lang
           ? document.documentElement.lang.replace(/"/g, '')
           : 'zh-CN'
       const { toPng, toJpeg, toBlob, toSvg } = await import('html-to-image')
-      const el = previewRef.current
       const exportFilter = (node: Node) =>
         !(node instanceof Element && node.hasAttribute('data-export-ignore'))
+      const fontOpts = { fontEmbedCSS }
+      const { width: cw, height: ch } = getCaptureNodeCssSize(el)
+      const pixelRatio = clampCapturePixelRatio(cw, ch, exportScale)
       const opts = {
         quality: 0.95,
-        pixelRatio: exportScale,
+        pixelRatio,
+        skipAutoScale: true,
         backgroundColor: theme.background,
         filter: exportFilter,
         cacheBust: true,
         preferredFontFormat: 'woff2' as const,
+        style: CAPTURE_ROOT_STYLE,
+        ...fontOpts,
       }
 
+      const raster = <T,>(p: Promise<T>) => withTimeout(p, EXPORT_RASTER_MS)
+
       if (exportFormat === 'png') {
-        const dataURL = await toPng(el, opts)
+        const dataURL = await raster(toPng(el, opts))
         downloadBlob(await (await fetch(dataURL)).blob(), `${name}.png`)
       }
 
       else if (exportFormat === 'jpeg') {
-        const dataURL = await toJpeg(el, { ...opts, quality: 0.92 })
+        const dataURL = await raster(toJpeg(el, { ...opts, quality: 0.92 }))
         downloadBlob(await (await fetch(dataURL)).blob(), `${name}.jpg`)
       }
 
       else if (exportFormat === 'webp') {
-        const blob = await toBlob(el, { ...opts, type: 'image/webp' })
+        const blob = await raster(toBlob(el, { ...opts, type: 'image/webp' }))
         if (!blob) throw new Error(t('compose.errorWebp'))
         downloadBlob(blob, `${name}.webp`)
       }
 
       else if (exportFormat === 'svg') {
-        const svgStr = await toSvg(el, {
-          pixelRatio: 1,
-          backgroundColor: theme.background,
-          cacheBust: true,
-          preferredFontFormat: 'woff2',
-        })
+        const svgStr = await raster(
+          toSvg(el, {
+            pixelRatio: 1,
+            backgroundColor: theme.background,
+            cacheBust: true,
+            preferredFontFormat: 'woff2',
+            filter: exportFilter,
+            style: CAPTURE_ROOT_STYLE,
+            ...fontOpts,
+          }),
+        )
         downloadBlob(new Blob([svgStr], { type: 'image/svg+xml;charset=utf-8' }), `${name}.svg`)
       }
 
       else if (exportFormat === 'clipboard') {
-        const blob = await toBlob(el, opts)
+        const blob = await raster(toBlob(el, opts))
         if (!blob) throw new Error(t('compose.errorBlob'))
         if (navigator.clipboard?.write) {
           await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })])
@@ -417,7 +475,7 @@ export function ComposeWorkbench() {
       }
 
       else if (exportFormat === 'pdf') {
-        const dataURL = await toPng(el, opts)
+        const dataURL = await raster(toPng(el, opts))
         const { jsPDF } = await import('jspdf')
         const img = new Image()
         await new Promise<void>((res, rej) => { img.onload = () => res(); img.onerror = rej; img.src = dataURL })
@@ -446,7 +504,7 @@ export function ComposeWorkbench() {
     } finally {
       setExporting(false)
     }
-  }, [isEmpty, pageTitle, exportFormat, exportScale, theme.background, theme.fontHeading, theme.fontBody, theme.text, preset.contentWidth, sourceText, t])
+  }, [isEmpty, pageTitle, exportFormat, exportScale, theme.background, theme.fontHeading, theme.fontBody, theme.text, preset.contentWidth, sourceText, t, customFonts])
 
   const openExport = useCallback(() => {
     if (isEmpty) return

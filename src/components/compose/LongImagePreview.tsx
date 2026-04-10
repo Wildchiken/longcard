@@ -68,7 +68,7 @@ export const LongImagePreview = forwardRef<HTMLDivElement, LongImagePreviewProps
     }
 
     return (
-      <div ref={ref} style={containerStyle}>
+      <div ref={ref} data-zs-export-root="" style={containerStyle}>
         {blocks.map((block, i) => (
           <BlockRenderer
             key={block.id}

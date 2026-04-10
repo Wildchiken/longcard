@@ -6,6 +6,7 @@ import { useComposeStore } from '@/store/compose-store'
 import { runPreflight, hasErrors } from '@/lib/export/preflight'
 import type { PreflightResult } from '@/lib/export/preflight'
 import { useI18n } from '@/lib/i18n/context'
+import { AsyncTimeoutError } from '@/lib/with-timeout'
 
 interface ExportDialogProps {
   open: boolean
@@ -134,8 +135,8 @@ export function ExportDialog({ open, onClose, onConfirm }: ExportDialogProps) {
       await onConfirm()
       setDone(true)
       closeTimerRef.current = setTimeout(() => { onClose(); setDone(false); closeTimerRef.current = null }, 1200)
-    } catch {
-      setExportError(t('export.fail'))
+    } catch (e) {
+      setExportError(e instanceof AsyncTimeoutError ? t('export.timeout') : t('export.fail'))
     } finally {
       setExporting(false)
     }

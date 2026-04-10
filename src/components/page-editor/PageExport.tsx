@@ -3,6 +3,10 @@
 import { useState, useCallback } from 'react'
 import { usePageStore } from '@/store/page-store'
 import { shareImage, saveToDevice } from '@/lib/capacitor/share'
+import {
+  clampCapturePixelRatio,
+  getCaptureNodeCssSize,
+} from '@/lib/export/capture-pixel-ratio'
 import { Button } from '@/components/ui/button'
 import { Download, Share2 } from 'lucide-react'
 
@@ -14,10 +18,14 @@ export function PageExportPanel({ pageRef }: { pageRef: React.RefObject<HTMLDivE
     if (!pageRef.current) return
     setExporting(true)
     try {
+      const el = pageRef.current
+      const { width, height } = getCaptureNodeCssSize(el)
+      const pixelRatio = clampCapturePixelRatio(width, height, 3)
       const { toPng } = await import('html-to-image')
-      const dataURL = await toPng(pageRef.current, {
+      const dataURL = await toPng(el, {
         quality: 1,
-        pixelRatio: 3,
+        pixelRatio,
+        skipAutoScale: true,
         backgroundColor: undefined,
       })
       if (action === 'download') {

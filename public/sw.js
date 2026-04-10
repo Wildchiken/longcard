@@ -1,4 +1,4 @@
-const CACHE_NAME = 'longcard-v1'
+const CACHE_NAME = 'longcard-v2'
 const STATIC_ASSETS = [
   '/',
   '/gallery',
@@ -22,27 +22,11 @@ self.addEventListener('activate', (event) => {
 })
 
 self.addEventListener('fetch', (event) => {
-  const url = new URL(event.request.url)
-
   if (event.request.mode === 'navigate') {
     event.respondWith(
       fetch(event.request).catch(() =>
         caches.match('/gallery').then((r) => r ?? fetch(event.request))
       )
     )
-    return
-  }
-
-  if (url.hostname === 'fonts.googleapis.com' || url.hostname === 'fonts.gstatic.com') {
-    event.respondWith(
-      caches.open('zine-fonts').then(async (cache) => {
-        const cached = await cache.match(event.request)
-        if (cached) return cached
-        const response = await fetch(event.request)
-        cache.put(event.request, response.clone())
-        return response
-      })
-    )
-    return
   }
 })

@@ -36,9 +36,7 @@ export async function loadFont(family: string): Promise<void> {
       document.fonts.load(`700 32px ${q}`).catch(() => []),
     ])
     loadedFonts.add(family)
-  } catch {
-    // non-fatal
-  }
+  } catch {}
 }
 
 export async function loadMultipleFonts(families: string[]): Promise<void> {
@@ -53,7 +51,16 @@ export async function ensureFontsReadyForCapture(
   await loadMultipleFonts([fontHeading, fontBody])
   await document.fonts.ready
   const families = [...new Set([fontHeading, fontBody].filter(Boolean))]
-  const weights = ['300 15px', '400 16px', '500 18px', '600 22px', '700 28px', '700 40px', '900 52px']
+  const weights = [
+    '300 15px',
+    '400 16px',
+    '500 18px',
+    '600 16px',
+    '600 22px',
+    '700 28px',
+    '700 40px',
+    '900 52px',
+  ]
   await Promise.all(
     families.flatMap((fam) => {
       const q = cssFontFamilyToken(fam)

@@ -144,13 +144,13 @@ const BUILTIN_FONTS = [
 // Google Fonts to load at runtime (only web fonts that aren't typically on-device)
 const GOOGLE_FONTS_TO_LOAD = [
   'Playfair+Display:wght@400;700',
-  'EB+Garamond:wght@400;700',
-  'Lora:wght@400;700',
+  'EB+Garamond:wght@400;500;600;700',
+  'Lora:wght@400;600;700',
   'Josefin+Sans:wght@400;600',
-  'DM+Sans:wght@400;500',
-  'Inter:wght@400;500',
-  'Noto+Serif+SC:wght@400;700',
-  'Noto+Sans+SC:wght@400;500',
+  'DM+Sans:wght@400;500;600;700',
+  'Inter:wght@400;500;600;700',
+  'Noto+Serif+SC:wght@400;600;700',
+  'Noto+Sans+SC:wght@400;500;600;700',
 ]
 
 // ── System font picker ────────────────────────────────────────────────────────

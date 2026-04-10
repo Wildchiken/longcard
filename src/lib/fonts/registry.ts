@@ -11,12 +11,12 @@ export const CURATED_FONTS: FontDef[] = [
   // Serif
   { id: 'playfair', name: 'Playfair Display', family: 'Playfair Display', category: 'serif', weights: [400, 700, 900], googleFamily: 'Playfair+Display:wght@400;700;900' },
   { id: 'lora', name: 'Lora', family: 'Lora', category: 'serif', weights: [400, 600, 700], googleFamily: 'Lora:wght@400;600;700' },
-  { id: 'eb-garamond', name: 'EB Garamond', family: 'EB Garamond', category: 'serif', weights: [400, 500, 700], googleFamily: 'EB+Garamond:wght@400;500;700' },
+  { id: 'eb-garamond', name: 'EB Garamond', family: 'EB Garamond', category: 'serif', weights: [400, 500, 600, 700], googleFamily: 'EB+Garamond:wght@400;500;600;700' },
   { id: 'cormorant', name: 'Cormorant Garamond', family: 'Cormorant Garamond', category: 'serif', weights: [300, 400, 700], googleFamily: 'Cormorant+Garamond:wght@300;400;700' },
   { id: 'libre-baskerville', name: 'Libre Baskerville', family: 'Libre Baskerville', category: 'serif', weights: [400, 700], googleFamily: 'Libre+Baskerville:wght@400;700' },
   // Sans-serif
-  { id: 'dm-sans', name: 'DM Sans', family: 'DM Sans', category: 'sans-serif', weights: [300, 400, 500, 700], googleFamily: 'DM+Sans:wght@300;400;500;700' },
-  { id: 'inter', name: 'Inter', family: 'Inter', category: 'sans-serif', weights: [300, 400, 500, 700], googleFamily: 'Inter:wght@300;400;500;700' },
+  { id: 'dm-sans', name: 'DM Sans', family: 'DM Sans', category: 'sans-serif', weights: [300, 400, 500, 600, 700], googleFamily: 'DM+Sans:wght@300;400;500;600;700' },
+  { id: 'inter', name: 'Inter', family: 'Inter', category: 'sans-serif', weights: [300, 400, 500, 600, 700], googleFamily: 'Inter:wght@300;400;500;600;700' },
   { id: 'outfit', name: 'Outfit', family: 'Outfit', category: 'sans-serif', weights: [300, 400, 600, 700], googleFamily: 'Outfit:wght@300;400;600;700' },
   { id: 'plus-jakarta', name: 'Plus Jakarta Sans', family: 'Plus Jakarta Sans', category: 'sans-serif', weights: [300, 400, 600, 700], googleFamily: 'Plus+Jakarta+Sans:wght@300;400;600;700' },
   { id: 'josefin-sans', name: 'Josefin Sans', family: 'Josefin Sans', category: 'sans-serif', weights: [300, 400, 600, 700], googleFamily: 'Josefin+Sans:wght@300;400;600;700' },
