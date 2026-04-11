@@ -335,6 +335,9 @@ export const useComposeStore = create<ComposeStore>((set, get) => ({
 
   resetPage: () => {
     clearDebounceTimers()
+    const initialPresetId = LAYOUT_PRESETS[0].id
+    const savedDefaults = loadDefaultOverridesMap()[initialPresetId] ?? {}
+    const initialSnap: HistorySnapshot = { ...INITIAL_SNAPSHOT, overrides: savedDefaults }
     set({
       pageId: freshId(),
       pageTitle: '',
@@ -343,14 +346,14 @@ export const useComposeStore = create<ComposeStore>((set, get) => ({
       imageBlocks: [],
       savedAt: null,
       isLoaded: false,
-      overrides: {},
-      presetId: LAYOUT_PRESETS[0].id,
+      overrides: savedDefaults,
+      presetId: initialPresetId,
       watermarkText: '',
       markdownEnabled: true,
       exportFormat: 'png',
       imageWidthPreset: 'phone',
       imageWidthCustom: 1080,
-      history: [INITIAL_SNAPSHOT],
+      history: [initialSnap],
       historyIndex: 0,
     })
   },

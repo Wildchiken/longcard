@@ -24,33 +24,33 @@ function tryDataURLToBlob(dataURL: string): Blob | null {
 
 export async function shareImage(dataURL: string, title: string): Promise<void> {
   const base = safeFileBasename(title)
+  const blob = tryDataURLToBlob(dataURL)
+  if (!blob) throw new Error('Invalid image data')
 
   if (navigator.share && navigator.canShare) {
-    const blob = tryDataURLToBlob(dataURL)
-    if (!blob) throw new Error('Invalid image data')
     const file = new File([blob], `${base}.png`, { type: 'image/png' })
     if (navigator.canShare({ files: [file] })) {
-      await navigator.share({
-        title: base,
-        files: [file],
-      })
-      return
+      try {
+        await navigator.share({ title: base, files: [file] })
+        return
+      } catch (e) {
+        if (e instanceof DOMException && e.name === 'AbortError') return
+        throw e
+      }
     }
   }
 
   try {
-    const blob = tryDataURLToBlob(dataURL)
-    if (!blob) throw new Error('Invalid image data')
-    await navigator.clipboard.write([
-      new ClipboardItem({ 'image/png': blob }),
-    ])
+    await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })])
     return
   } catch {
+    const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
-    a.href = dataURL
+    a.href = url
     a.download = `${base}.png`
     a.rel = 'noopener'
     a.click()
+    setTimeout(() => URL.revokeObjectURL(url), 30_000)
   }
 }
 
