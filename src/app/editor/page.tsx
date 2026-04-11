@@ -1,6 +1,7 @@
 'use client'
 
 import { Suspense, useEffect, useState } from 'react'
+import { v4 as uuid } from 'uuid'
 import { useSearchParams } from 'next/navigation'
 import { getZineById } from '@/lib/db/queries'
 import { EditorLayout } from '@/components/canvas/EditorLayout'
@@ -34,16 +35,15 @@ function EditorInner() {
       }
     }
     let cancelled = false
-    void import('uuid').then(({ v4: uuid }) => {
-      if (cancelled) return
-      const id = uuid()
-      const fmt = formatParam ?? 'square'
-      const qs = new URLSearchParams({ id })
-      if (fmt !== 'square') qs.set('format', fmt)
-      window.history.replaceState(null, '', `/editor?${qs.toString()}`)
+    const id = uuid()
+    const fmt = formatParam ?? 'square'
+    const qs = new URLSearchParams({ id })
+    if (fmt !== 'square') qs.set('format', fmt)
+    window.history.replaceState(null, '', `/editor?${qs.toString()}`)
+    if (!cancelled) {
       setReadyId(id)
       setZine(null)
-    })
+    }
     return () => {
       cancelled = true
     }

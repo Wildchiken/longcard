@@ -39,16 +39,21 @@ export const useGalleryStore = create<GalleryStore>((set, get) => ({
         getAllCollections(),
       ])
       set({ zines, pages, collections, isLoading: false })
-    } catch {
+    } catch (e) {
       set({ zines: [], pages: [], collections: [], isLoading: false })
-      throw new Error('loadAll failed')
+      throw e
     }
   },
 
   upsertZine: async (zine) => {
     await saveZine(zine)
-    const zines = await getAllZines()
-    set({ zines })
+    set((s) => {
+      const exists = s.zines.some((z) => z.id === zine.id)
+      const list = exists
+        ? s.zines.map((z) => (z.id === zine.id ? zine : z))
+        : [zine, ...s.zines]
+      return { zines: list.sort((a, b) => b.updatedAt - a.updatedAt) }
+    })
   },
 
   removeZine: async (id) => {
@@ -63,8 +68,13 @@ export const useGalleryStore = create<GalleryStore>((set, get) => ({
 
   upsertCollection: async (col) => {
     await saveCollection(col)
-    const collections = await getAllCollections()
-    set({ collections })
+    set((s) => {
+      const exists = s.collections.some((c) => c.id === col.id)
+      const list = exists
+        ? s.collections.map((c) => (c.id === col.id ? col : c))
+        : [...s.collections, col]
+      return { collections: list.sort((a, b) => a.createdAt - b.createdAt) }
+    })
   },
 
   removeCollection: async (id) => {

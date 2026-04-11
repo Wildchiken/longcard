@@ -32,10 +32,10 @@ export async function savePage(page: ZinePage): Promise<void> {
 }
 
 export async function deletePage(id: string): Promise<void> {
-  await Promise.all([
-    db.pages.delete(id),
-    db.pageVersions.where('pageId').equals(id).delete(),
-  ])
+  await db.transaction('rw', [db.pages, db.pageVersions], async () => {
+    await db.pages.delete(id)
+    await db.pageVersions.where('pageId').equals(id).delete()
+  })
 }
 
 export async function getAllCollections(): Promise<Collection[]> {
