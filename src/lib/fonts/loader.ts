@@ -1,15 +1,14 @@
 import { CURATED_FONTS } from './registry'
 
 const loadedFonts = new Set<string>()
+const loadingFonts = new Map<string, Promise<void>>()
 
 function cssFontFamilyToken(family: string): string {
   if (!family.includes(' ') && /^[a-zA-Z0-9-]+$/.test(family)) return family
   return `"${family.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`
 }
 
-export async function loadFont(family: string): Promise<void> {
-  if (loadedFonts.has(family)) return
-
+async function _loadFont(family: string): Promise<void> {
   const fontDef = CURATED_FONTS.find((f) => f.family === family)
   if (!fontDef) return
 
@@ -37,6 +36,15 @@ export async function loadFont(family: string): Promise<void> {
     ])
     loadedFonts.add(family)
   } catch {}
+}
+
+export function loadFont(family: string): Promise<void> {
+  if (loadedFonts.has(family)) return Promise.resolve()
+  const inflight = loadingFonts.get(family)
+  if (inflight) return inflight
+  const p = _loadFont(family).finally(() => loadingFonts.delete(family))
+  loadingFonts.set(family, p)
+  return p
 }
 
 export async function loadMultipleFonts(families: string[]): Promise<void> {
