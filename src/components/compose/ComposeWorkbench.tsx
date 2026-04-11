@@ -479,12 +479,14 @@ export function ComposeWorkbench() {
         const { jsPDF } = await import('jspdf')
         const img = new Image()
         await new Promise<void>((res, rej) => { img.onload = () => res(); img.onerror = rej; img.src = dataURL })
+        const w = img.naturalWidth || img.width
+        const h = img.naturalHeight || img.height
         const pdf = new jsPDF({
-          orientation: img.width > img.height ? 'landscape' : 'portrait',
+          orientation: w > h ? 'landscape' : 'portrait',
           unit: 'px',
-          format: [img.width, img.height],
+          format: [w, h],
         })
-        pdf.addImage(dataURL, 'PNG', 0, 0, img.width, img.height)
+        pdf.addImage(dataURL, 'PNG', 0, 0, w, h)
         pdf.save(`${name}.pdf`)
       }
 
