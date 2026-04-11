@@ -119,10 +119,13 @@ function snapshotOf(s: ComposeStore): HistorySnapshot {
   }
 }
 
+const _initPresetId = LAYOUT_PRESETS[0].id
+const _initOverrides: LayoutOverrides = loadDefaultOverridesMap()[_initPresetId] ?? {}
+
 const INITIAL_SNAPSHOT: HistorySnapshot = {
   sourceText: '',
-  presetId: LAYOUT_PRESETS[0].id,
-  overrides: {},
+  presetId: _initPresetId,
+  overrides: _initOverrides,
   markdownEnabled: true,
   pageTitle: '',
 }
@@ -131,8 +134,8 @@ export const useComposeStore = create<ComposeStore>((set, get) => ({
   pageId: freshId(),
   pageTitle: '',
   sourceText: '',
-  presetId: LAYOUT_PRESETS[0].id,
-  overrides: {},
+  presetId: _initPresetId,
+  overrides: _initOverrides,
   blocks: [],
   imageBlocks: [],
   isSaving: false,

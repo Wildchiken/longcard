@@ -18,7 +18,7 @@ export function PageCard({ page }: PageCardProps) {
   const [open, setOpen] = useState(false)
 
   const handleDelete = async () => {
-    if (confirm(`删除「${page.title}」？此操作不可撤销。`)) {
+    if (confirm(t('recent.deleteConfirm', { title: page.title || t('recent.untitled') }))) {
       await removePage(page.id)
     }
     setOpen(false)
